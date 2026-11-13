@@ -2,20 +2,13 @@
 
 PPT 和 A4 分轨。版式由脚本锁定。同一份内容源连续发布两次，PPTX 或 HTML 字节相同，才允许交付。
 
-仓库私有。里面是品牌底图和执行参数，不含客户成品或历史课件。
+不含客户成品或历史课件。品牌底图可随仓库分发，不构成改标授权，见 `NOTICE.md`。
 
 ## 交给 Agent 的一句
 
 ```text
-请阅读 https://github.com/MasterBenC/sovra-brand-kit 里的 AGENT_INSTALL.md 并安装。
-这是私有仓库，用已登录的 gh 克隆。装完跑技能目录里的 python tests/test_stable.py，把结果告诉我。
-```
-
-私有仓库的网页链接打不开时，改用：
-
-```text
-gh repo clone MasterBenC/sovra-brand-kit
-然后按仓库里的 AGENT_INSTALL.md 安装，并跑 python tests/test_stable.py。
+请阅读 https://raw.githubusercontent.com/MasterBenC/sovra-brand-kit/main/AGENT_INSTALL.md
+按里面的步骤安装，装完跑 python tests/test_stable.py，把结果告诉我。
 ```
 
 ## 稳定是什么
