@@ -1,7 +1,7 @@
 ---
 name: sovra-brand
 description: "Use when 做灵能涌现PPT或A4，且要求成品字节稳定。"
-version: 1.0.0
+version: 1.1.0
 author: MasterBenC, Hermes Agent
 license: MIT
 platforms: [linux, macos, windows]
@@ -41,15 +41,16 @@ PPT 的锚点是 `演示稿.pptx`：不压缩 ZIP、时间戳固定为 2026-11-0
 ## Procedure
 
 1. 先定媒介。课程、分享、演示走 PPT，读 `references/ppt-vi.md`。提案、纪要、课程指南走 A4，读 `references/a4-vi.md`。两份都读 `references/stability.md`。完成标准：媒介只有一个，没有混用字号、页码或品牌位置。
-2. 把材料写成 JSON。PPT 对照 `examples/ppt/content.json`。A4 对照 `assets/a4/document.schema.json` 和 `examples/a4/`。姓名、身份、数字、价格、承诺没有出处就标待确认，或停下来问。不把示例客户、示例讲师和历史项目事实抄进新稿。完成标准：JSON 能被发布脚本读入，没有空的必填字段。
-3. 图只用已经保存的 PNG，并写 `provenance`。发布过程中不生图。已确认的图不重新生成。没有图就不要用 visual。完成标准：每个 visual 页都有 PNG 和 provenance。
-4. 在技能目录发布。输出目录必须在技能目录之外。
+2. 写 PPT 的 JSON 前先读 `references/ppt-language.md`。`audience` 写清谁在听、他们不熟悉什么。先写听众能核对的人和结果，再出现专业词；专业词必须当页解释。正文、卡片说明和备注要有主语、谓语。同一章的后一页要接上前一页的人或事。完成标准：`python scripts/check_ppt_language.py 内容.json` 退出码 0。
+3. 把材料写成 JSON。PPT 对照 `examples/ppt/content.json`。A4 对照 `assets/a4/document.schema.json` 和 `examples/a4/`。姓名、身份、数字、价格、承诺没有出处就标待确认，或停下来问。不把示例客户、示例讲师和历史项目事实抄进新稿。完成标准：JSON 能被发布脚本读入，没有空的必填字段。
+4. 图只用已经保存的 PNG，并写 `provenance`。发布过程中不生图。已确认的图不重新生成。没有图就不要用 visual。完成标准：每个 visual 页都有 PNG 和 provenance。
+5. 在技能目录发布。输出目录必须在技能目录之外。
    - PPT：`python scripts/publish_ppt.py 内容.json 输出目录`
    - A4：`python scripts/publish_a4.py 内容.json 输出目录`
    - A4 要测分页并出 PDF 时加 `--pdf`
-   环境不清楚时先跑 `python scripts/probe_env.py`。完成标准：命令退出码是 0 或 2，输出目录里有 `验收.json`。
-5. 读 `验收.json`。`两次构建一致` 不是 true 就停止，不得换一条手工排版路径。退出码 2 时列出 `未放行原因`。缺苹方、Helvetica Neue 或 LibreOffice 时，不要把字体改成微软雅黑再发布。完成标准：回复里写明退出码、哈希、页数、是否放行。
-6. 交付对应文件。PPT 交 `演示稿.pptx` 和 `验收.json`；只有退出码 0 才加 `演示稿.pdf`。A4 交 `文档.html` 和 `验收.json`；只有退出码 0 才加 `文档.pdf`。完成标准：目录里没有上一次运行留下的、本次没有重新导出的 PDF。
+   环境不清楚时先跑 `python scripts/probe_env.py`。语言检查未通过时退出码是 1，不产出 PPTX。改 JSON，不要关掉检查，也不要改坐标。完成标准：命令退出码是 0 或 2，输出目录里有 `验收.json`，且 `语言检查` 为通过。
+6. 读 `验收.json`。`两次构建一致` 不是 true 就停止，不得换一条手工排版路径。退出码 2 时列出 `未放行原因`。缺苹方、Helvetica Neue 或 LibreOffice 时，不要把字体改成微软雅黑再发布。完成标准：回复里写明退出码、哈希、页数、是否放行。
+7. 交付对应文件。PPT 交 `演示稿.pptx` 和 `验收.json`；只有退出码 0 才加 `演示稿.pdf`。A4 交 `文档.html` 和 `验收.json`；只有退出码 0 才加 `文档.pdf`。完成标准：目录里没有上一次运行留下的、本次没有重新导出的 PDF。
 
 ## 页型
 
@@ -64,13 +65,15 @@ A4 的 `document_type` 只有 `proposal` 和 `meeting_minutes`。课程指南用
 - `python -O` 会丢掉版式断言。发布脚本拒绝这个模式。
 - 直接运行 `scripts/build.py` 不能交付。它已改为直接拒绝。
 - 文字超宽、超高、案例页缺来源、visual 缺 provenance、封面后续行超过 8 个全角字位，都是内容问题。改 JSON，不改坐标。
+- 语言检查失败也是内容问题。缺主语、后页接不上、用术语当卖点，都改 JSON。不要放宽 `check_ppt_language.py`。
 - 客户实例里的协会名、讲师、数字不是新稿的默认事实。本仓库不含那些成品。
 
 ## Verification
 
-发布后核对这四项，缺一不可：
+发布后核对下面几项，缺一不可：
 
 - 退出码是 0 或 2，且与 `视觉放行` 一致
+- `验收.json` 里 `语言检查` 为通过
 - `pptx_sha256` 或 `html_sha256` 连续两次相同
 - 示例回归通过：`python tests/test_stable.py`
 - 回复里写了哈希、页数、未放行原因。没有这些，就还没做完

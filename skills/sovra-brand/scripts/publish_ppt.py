@@ -17,6 +17,7 @@ from pathlib import Path
 import pptx
 
 from build import build
+from check_ppt_language import problems
 from probe_env import missing_fonts, soffice_path
 from stabilize import stabilize_pptx
 
@@ -102,6 +103,9 @@ def publish(source: Path, out: Path, force: bool = False):
     if out == SKILL or SKILL in out.parents:
         raise RuntimeError("输出目录不能放在技能目录里。")
     data = json.loads(source.read_text(encoding="utf-8"))
+    found = problems(data)
+    if found:
+        raise RuntimeError("语言检查未通过\n" + "\n".join("- " + item for item in found))
     digest = content_hash(data)
     marker = out / "验收.json"
     if marker.exists() and not force:
@@ -147,6 +151,7 @@ def publish(source: Path, out: Path, force: bool = False):
         "pptx_sha256": hashlib.sha256(left).hexdigest(),
         "页数": page_count,
         "两次构建一致": True,
+        "语言检查": "通过",
         "封面原图未改写": True,
         "视觉放行": released,
         "未放行原因": reasons,

@@ -70,19 +70,59 @@ def main():
 
     bad = Path(tempfile.mkdtemp()) / "bad.json"
     payload = {
+        "audience": "门店值班同事，不要求会做账",
         "event": "测试",
         "title": "这是一行故意写得很长的标题用来触发超宽门禁不应该被排进页面",
         "short_title": "超宽",
-        "subtitle": "短",
+        "subtitle": "让值班同事看清记录",
         "speaker": "测试",
         "credentials": ["测试"],
-        "goal": "测试",
-        "sections": [{"title": "章", "summary": "短", "pages": [{"type": "cards", "title": "短", "items": [["甲", "乙"], ["丙", "丁"]], "notes": "注"}]}],
+        "goal": "看清记录",
+        "sections": [{
+            "title": "核对记录",
+            "summary": "值班同事要能核对当班记录",
+            "pages": [{
+                "type": "cards",
+                "title": "谁来核对记录？",
+                "items": [["清点", "交班人核对设备编号。"], ["签收", "接班人核对记录并签名。"]],
+                "notes": "请学员说出负责人。",
+            }],
+        }],
     }
     bad.write_text(json.dumps(payload, ensure_ascii=False), encoding="utf-8")
     code, output = run("publish_ppt.py", str(bad), str(Path(tempfile.mkdtemp()) / "bad-out"))
-    if code != 1 or "RESULT FAIL" not in output:
+    if code != 1 or "超宽" not in output:
         raise SystemExit(f"超宽标题应当失败，实际 {code}\n{output}")
+
+    jargon = Path(tempfile.mkdtemp()) / "jargon.json"
+    jargon.write_text(json.dumps({
+        "audience": "企业老板，不懂内部方法名",
+        "event": "测试",
+        "title": "短标题",
+        "short_title": "短",
+        "subtitle": "让老板看清少算错的那一笔",
+        "speaker": "测试",
+        "credentials": ["测试"],
+        "goal": "看清记录",
+        "sections": [{
+            "title": "导入闭环",
+            "summary": "导入我们的FDE闭环体系",
+            "pages": [{
+                "type": "cards",
+                "title": "赋能业务",
+                "items": [["抓手", "赋能"], ["对齐", "拉通部门"]],
+                "notes": "讲闭环",
+            }],
+        }],
+    }, ensure_ascii=False), encoding="utf-8")
+    jargon_out = Path(tempfile.mkdtemp()) / "jargon-out"
+    code, output = run("publish_ppt.py", str(jargon), str(jargon_out))
+    if code != 1 or "语言检查未通过" not in output:
+        raise SystemExit(f"术语稿应当被语言检查拒绝，实际 {code}\n{output}")
+    if (jargon_out / "演示稿.pptx").exists():
+        raise SystemExit("语言检查失败时不应写出 PPTX")
+    if "缺主语" not in output and "卖方法" not in output and "专业腔" not in output:
+        raise SystemExit(f"语言检查没有指出术语或缺主语\n{output}")
 
     text = (SKILL / "SKILL.md").read_text(encoding="utf-8")
     description = text.split('description: "')[1].split('"')[0]
