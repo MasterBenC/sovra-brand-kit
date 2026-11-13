@@ -1,0 +1,104 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "灵能涌现客户文档输入",
+  "type": "object",
+  "required": [
+    "document_type",
+    "category",
+    "file_type",
+    "cover",
+    "pages"
+  ],
+  "properties": {
+    "document_type": {
+      "enum": [
+        "proposal",
+        "meeting_minutes"
+      ]
+    },
+    "category": {
+      "type": "string"
+    },
+    "file_type": {
+      "type": "string"
+    },
+    "cover": {
+      "type": "object",
+      "required": [
+        "title_lines",
+        "statements",
+        "meeting_note"
+      ],
+      "properties": {
+        "title_lines": {
+          "type": "array",
+          "minItems": 2,
+          "maxItems": 4,
+          "items": {
+            "type": "string"
+          }
+        },
+        "statements": {
+          "type": "array",
+          "maxItems": 2,
+          "items": {
+            "type": "string"
+          }
+        },
+        "meeting_note": {
+          "type": "string"
+        }
+      }
+    },
+    "pages": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "required": [
+          "title",
+          "lead",
+          "sections"
+        ],
+        "properties": {
+          "title": {
+            "type": "string"
+          },
+          "lead": {
+            "type": "string"
+          },
+          "sections": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "required": [
+                "title",
+                "paragraphs"
+              ],
+              "properties": {
+                "title": {
+                  "type": "string"
+                },
+                "paragraphs": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                },
+                "bullets": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          },
+          "note": {
+            "type": "string"
+          }
+        }
+      }
+    }
+  }
+}
